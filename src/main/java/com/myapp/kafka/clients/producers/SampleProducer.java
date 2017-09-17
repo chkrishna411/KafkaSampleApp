@@ -8,6 +8,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.myapp.kafka.clients.partitioner.CustomPartitioner;
+
 
 
 public class SampleProducer implements Producer {
@@ -24,7 +26,7 @@ public class SampleProducer implements Producer {
 		props.put("bootstrap.servers", "localhost:9092");
 		props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 		props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-		
+		props.put("partitioner.class", CustomPartitioner.class.getName());
 		producer = new KafkaProducer<>(props);
 	}
 	

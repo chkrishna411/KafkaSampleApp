@@ -12,11 +12,11 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
 import com.myapp.kafka.clients.domain.Employee;
+import com.myapp.kafka.clients.serialize.CustomDeserializer;
 
-public class MessageConsumer {
-	private static final Logger logger = LoggerFactory.getLogger(MessageConsumer.class);
+public class EmployeeConsumer {
+	private static final Logger logger = LoggerFactory.getLogger(EmployeeConsumer.class);
 	
 	public Properties configProps() {
 		
@@ -24,7 +24,7 @@ public class MessageConsumer {
 		
 		props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
 		props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-		props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+		props.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, CustomDeserializer.class.getName());
 		
 		props.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "accountGroup");
 		props.setProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
@@ -34,24 +34,19 @@ public class MessageConsumer {
 	
 	public void consumeMessage() {
 		
-		KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(this.configProps());
+		KafkaConsumer<String, Employee> kafkaConsumer = new KafkaConsumer<>(this.configProps());
 		
 		kafkaConsumer.subscribe(Collections.singletonList("accountTopic"));
 		
-		ConsumerRecords<String, String>  consumerRecords = kafkaConsumer.poll(1000);
+		ConsumerRecords<String, Employee>  consumerRecords = kafkaConsumer.poll(1000);
 		
-		for(ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-			
-			
-			Gson gson = new Gson();
-			Employee emp = gson.fromJson(consumerRecord.value(), Employee.class);
+		for(ConsumerRecord<String, Employee> consumerRecord : consumerRecords) {
 			
 			logger.info(" MyConsumer Record Topic: "+consumerRecord.topic() + 
 					"  Key: "+consumerRecord.key() +
 					"  offset: "+consumerRecord.offset() +
 					"  partition: "+consumerRecord.partition() +
-					"  value: "+consumerRecord.value() +
-					"  emp value: "+ emp 
+					"  value: "+consumerRecord.value() 
 					);	
 		}
 		
